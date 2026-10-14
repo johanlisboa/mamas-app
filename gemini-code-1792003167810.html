@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Laudo de Mamas</title>
+    <!-- Biblioteca Oficial do Telegram Web Apps -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        /* O CSS utiliza variáveis nativas do Telegram para combinar perfeitamente com o tema do utilizador */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            padding: 16px;
+            margin: 0;
+            padding-bottom: 80px;
+        }
+        h2 { margin-top: 0; font-size: 20px; color: var(--tg-theme-text-color, #000000); }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 14px; font-weight: bold; margin-bottom: 6px; color: var(--tg-theme-hint-color, #888888); }
+        select, input {
+            width: 100%; box-sizing: border-box; padding: 12px;
+            font-size: 16px; border-radius: 8px;
+            border: 1px solid var(--tg-theme-hint-color, #cccccc);
+            background-color: var(--tg-theme-secondary-bg-color, #f4f4f5);
+            color: var(--tg-theme-text-color, #000000);
+            appearance: none;
+        }
+        /* Grid para alinhar campos curtos lado a lado */
+        .row { display: flex; gap: 10px; }
+        .row > div { flex: 1; }
+        
+        button {
+            width: calc(100% - 32px); padding: 16px;
+            background-color: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none; border-radius: 12px;
+            font-size: 16px; font-weight: bold;
+            position: fixed; bottom: 16px; left: 16px;
+            cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <h2>🎀 Descritor BI-RADS</h2>
+
+    <div class="row">
+        <div class="form-group">
+            <label>Mama</label>
+            <select id="mama">
+                <option value="direita">Direita</option>
+                <option value="esquerda">Esquerda</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Localização (Horas)</label>
+            <select id="relogio">
+                <option value="12h">12h</option><option value="1h">1h</option>
+                <option value="2h">2h</option><option value="3h">3h</option>
+                <option value="4h">4h</option><option value="5h">5h</option>
+                <option value="6h">6h</option><option value="7h">7h</option>
+                <option value="8h">8h</option><option value="9h">9h</option>
+                <option value="10h">10h</option><option value="11h">11h</option>
+                <option value="Axilar">Axilar</option><option value="Retroareolar">Retroareolar</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="form-group">
+            <label>Distância do Mamilo</label>
+            <input type="text" id="distancia" placeholder="Ex: 2 cm">
+        </div>
+        <div class="form-group">
+            <label>Dimensões</label>
+            <input type="text" id="dimensoes" placeholder="Ex: 1.5 x 1.0 cm">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Forma</label>
+        <select id="forma">
+            <option value="oval">Oval</option>
+            <option value="redonda">Redonda</option>
+            <option value="irregular">Irregular</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Margem</label>
+        <select id="margem">
+            <option value="circunscrita">Circunscrita</option>
+            <option value="indistinta">Indistinta</option>
+            <option value="angular">Angular</option>
+            <option value="microlobulada">Microlobulada</option>
+            <option value="espiculada">Espiculada</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Ecogenicidade</label>
+        <select id="eco">
+            <option value="hipoecoico">Hipoecoico</option>
+            <option value="anecoico">Anecoico (Cisto)</option>
+            <option value="isoecoico">Isoecoico</option>
+            <option value="hiperecoico">Hiperecoico</option>
+            <option value="complexo">Sólido-Cístico (Complexo)</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Classificação BI-RADS</label>
+        <select id="birads">
+            <option value="2">BI-RADS 2 (Achado Benigno)</option>
+            <option value="3">BI-RADS 3 (Provavelmente Benigno)</option>
+            <option value="4A">BI-RADS 4A (Baixa suspeita)</option>
+            <option value="4B">BI-RADS 4B (Média suspeita)</option>
+            <option value="4C">BI-RADS 4C (Alta suspeita)</option>
+            <option value="5">BI-RADS 5 (Altamente sugestivo de malignidade)</option>
+        </select>
+    </div>
+
+    <button onclick="enviarDados()">Enviar para a IA</button>
+
+    <script>
+        // Inicializa a API do Telegram
+        let tg = window.Telegram.WebApp;
+        tg.expand(); // Abre o painel em ecrã inteiro automaticamente
+
+        function enviarDados() {
+            let mama = document.getElementById('mama').value;
+            let relogio = document.getElementById('relogio').value;
+            let dist = document.getElementById('distancia').value;
+            let dim = document.getElementById('dimensoes').value;
+            let forma = document.getElementById('forma').value;
+            let margem = document.getElementById('margem').value;
+            let eco = document.getElementById('eco').value;
+            let birads = document.getElementById('birads').value;
+
+            // Constrói a frase exata que a sua IA está habituada a ler e formatar
+            let fraseLaudo = `Paciente para USG Mamas. Nódulo na mama ${mama}, às ${relogio}, a ${dist} do mamilo. Dimensões: ${dim}. Forma ${forma}, margem ${margem}, ecotextura ${eco}. Conclusão: BI-RADS ${birads}. Formate isso em formato de laudo médico formal.`;
+
+            // Envia o texto de volta para o chat do bot como se você tivesse digitado
+            tg.sendData(fraseLaudo);
+            tg.close(); // Fecha o Mini App
+        }
+    </script>
+</body>
+</html>
