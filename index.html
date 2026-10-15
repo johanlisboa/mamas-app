@@ -1,20 +1,16 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Laudo de Mamas</title>
-    <!-- Biblioteca Oficial do Telegram Web Apps -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* O CSS utiliza variáveis nativas do Telegram para combinar perfeitamente com o tema do utilizador */
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--tg-theme-bg-color, #ffffff);
             color: var(--tg-theme-text-color, #000000);
-            padding: 16px;
-            margin: 0;
-            padding-bottom: 80px;
+            padding: 16px; margin: 0; padding-bottom: 80px;
         }
         h2 { margin-top: 0; font-size: 20px; color: var(--tg-theme-text-color, #000000); }
         .form-group { margin-bottom: 16px; }
@@ -27,7 +23,6 @@
             color: var(--tg-theme-text-color, #000000);
             appearance: none;
         }
-        /* Grid para alinhar campos curtos lado a lado */
         .row { display: flex; gap: 10px; }
         .row > div { flex: 1; }
         
@@ -45,6 +40,11 @@
 <body>
 
     <h2>🎀 Descritor BI-RADS</h2>
+
+    <div class="form-group">
+        <label>Nome da Paciente</label>
+        <input type="text" id="paciente" placeholder="Ex: Maria da Silva">
+    </div>
 
     <div class="row">
         <div class="form-group">
@@ -81,7 +81,7 @@
 
     <div class="form-group">
         <label>Forma</label>
-        <select id="forma">
+        <select id="forma" onchange="calcularBirads()">
             <option value="oval">Oval</option>
             <option value="redonda">Redonda</option>
             <option value="irregular">Irregular</option>
@@ -90,7 +90,7 @@
 
     <div class="form-group">
         <label>Margem</label>
-        <select id="margem">
+        <select id="margem" onchange="calcularBirads()">
             <option value="circunscrita">Circunscrita</option>
             <option value="indistinta">Indistinta</option>
             <option value="angular">Angular</option>
@@ -101,9 +101,9 @@
 
     <div class="form-group">
         <label>Ecogenicidade</label>
-        <select id="eco">
-            <option value="hipoecoico">Hipoecoico</option>
-            <option value="anecoico">Anecoico (Cisto)</option>
+        <select id="eco" onchange="calcularBirads()">
+            <option value="anecoico">Anecoico (Cisto simples)</option>
+            <option value="hipoecoico" selected>Hipoecoico</option>
             <option value="isoecoico">Isoecoico</option>
             <option value="hiperecoico">Hiperecoico</option>
             <option value="complexo">Sólido-Cístico (Complexo)</option>
@@ -111,10 +111,10 @@
     </div>
 
     <div class="form-group">
-        <label>Classificação BI-RADS</label>
+        <label>Classificação BI-RADS Automática</label>
         <select id="birads">
             <option value="2">BI-RADS 2 (Achado Benigno)</option>
-            <option value="3">BI-RADS 3 (Provavelmente Benigno)</option>
+            <option value="3" selected>BI-RADS 3 (Provavelmente Benigno)</option>
             <option value="4A">BI-RADS 4A (Baixa suspeita)</option>
             <option value="4B">BI-RADS 4B (Média suspeita)</option>
             <option value="4C">BI-RADS 4C (Alta suspeita)</option>
@@ -122,29 +122,61 @@
         </select>
     </div>
 
-    <button onclick="enviarDados()">Enviar para a IA</button>
+    <button onclick="copiarEFechar()" id="btn-acao">Copiar Laudo e Fechar</button>
 
     <script>
-        // Inicializa a API do Telegram
         let tg = window.Telegram.WebApp;
-        tg.expand(); // Abre o painel em ecrã inteiro automaticamente
+        tg.expand();
 
-        function enviarDados() {
-            let mama = document.getElementById('mama').value;
-            let relogio = document.getElementById('relogio').value;
-            let dist = document.getElementById('distancia').value;
-            let dim = document.getElementById('dimensoes').value;
+        function calcularBirads() {
             let forma = document.getElementById('forma').value;
             let margem = document.getElementById('margem').value;
             let eco = document.getElementById('eco').value;
-            let birads = document.getElementById('birads').value;
+            let biradsSelect = document.getElementById('birads');
 
-            // Constrói a frase exata que a sua IA está habituada a ler e formatar
-            let fraseLaudo = `Paciente para USG Mamas. Nódulo na mama ${mama}, às ${relogio}, a ${dist} do mamilo. Dimensões: ${dim}. Forma ${forma}, margem ${margem}, ecotextura ${eco}. Conclusão: BI-RADS ${birads}. Formate isso em formato de laudo médico formal.`;
+            let isSuspeito = (forma === 'irregular' || margem !== 'circunscrita' || eco === 'complexo');
 
-            // Envia o texto de volta para o chat do bot como se você tivesse digitado
-            tg.sendData(fraseLaudo);
-            tg.close(); // Fecha o Mini App
+            if (isSuspeito) {
+                if (margem === 'espiculada') {
+                    biradsSelect.value = '5';
+                } else if (forma === 'irregular' && margem !== 'circunscrita') {
+                    biradsSelect.value = '4B'; 
+                } else {
+                    biradsSelect.value = '4A';
+                }
+            } else {
+                if (eco === 'anecoico' || eco === 'hiperecoico') {
+                    biradsSelect.value = '2'; 
+                } else if (eco === 'hipoecoico' || eco === 'isoecoico') {
+                    biradsSelect.value = '3'; 
+                }
+            }
+        }
+
+        function copiarEFechar() {
+            let paciente = document.getElementById('paciente').value || "Paciente sem nome";
+            let mama = document.getElementById('mama').value;
+            let relogio = document.getElementById('relogio').value;
+            let dist = document.getElementById('distancia').value || "não informada";
+            let dim = document.getElementById('dimensoes').value || "não informadas";
+            let forma = document.getElementById('forma').value;
+            let margem = document.getElementById('margem').value;
+            let eco = document.getElementById('eco').options[document.getElementById('eco').selectedIndex].text;
+            let birads = document.getElementById('birads').options[document.getElementById('birads').selectedIndex].text;
+
+            let fraseLaudo = `${paciente}, ultrassonografia de mamas. Nódulo na mama ${mama}, às ${relogio}, a ${dist} do mamilo. Dimensões: ${dim}. Forma ${forma}, margem ${margem, ecotextura ${eco}. Conclusão: ${birads}. Por favor, formate isso como um laudo formal.`;
+
+            // Copia para a área de transferência
+            navigator.clipboard.writeText(fraseLaudo).then(() => {
+                let btn = document.getElementById('btn-acao');
+                btn.innerText = "Copiado! Cole no chat.";
+                btn.style.backgroundColor = "#5cb85c";
+                
+                // Fecha automaticamente após 1.5 segundos
+                setTimeout(() => { tg.close(); }, 1500);
+            }).catch(err => {
+                alert("Erro ao copiar. Tente selecionar o texto manualmente.");
+            });
         }
     </script>
 </body>
