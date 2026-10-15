@@ -70,12 +70,12 @@
 
     <div class="row">
         <div class="form-group">
-            <label>Distância do Mamilo</label>
-            <input type="text" id="distancia" placeholder="Ex: 2 cm">
+            <label>Distância do Mamilo (cm)</label>
+            <input type="text" id="distancia" placeholder="Ex: 2">
         </div>
         <div class="form-group">
-            <label>Dimensões</label>
-            <input type="text" id="dimensoes" placeholder="Ex: 1.5 x 1.0 cm">
+            <label>Dimensões (cm)</label>
+            <input type="text" id="dimensoes" placeholder="Ex: 1.5 x 1.0">
         </div>
     </div>
 
@@ -134,23 +134,29 @@
             let eco = document.getElementById('eco').value;
             let biradsSelect = document.getElementById('birads');
 
-            // Lógica ACR BI-RADS
             if (margem === 'espiculada' || (forma === 'irregular' && margem === 'microlobulada')) {
                 biradsSelect.value = '5';
+                biradsSelect.style.backgroundColor = '#f8d7da';
+                biradsSelect.style.color = '#721c24';
             } else if (forma === 'irregular' && (margem === 'angular' || margem === 'indistinta' || eco === 'complexo')) {
                 biradsSelect.value = '4C';
+                biradsSelect.style.backgroundColor = ''; biradsSelect.style.color = '';
             } else if (forma === 'irregular' || margem === 'microlobulada' || margem === 'angular' || margem === 'indistinta' || eco === 'complexo') {
                 biradsSelect.value = '4B';
+                biradsSelect.style.backgroundColor = ''; biradsSelect.style.color = '';
             } else if (margem !== 'circunscrita') {
                 biradsSelect.value = '4A';
+                biradsSelect.style.backgroundColor = ''; biradsSelect.style.color = '';
             } else if (eco === 'anecoico') {
                 biradsSelect.value = '2';
+                biradsSelect.style.backgroundColor = ''; biradsSelect.style.color = '';
             } else {
                 biradsSelect.value = '3';
+                biradsSelect.style.backgroundColor = ''; biradsSelect.style.color = '';
             }
         }
 
-        // Executa uma vez no início para garantir o estado inicial correto
+        // Força a validação inicial
         calcularBirads();
 
         function copiarEFechar() {
@@ -164,7 +170,7 @@
             let eco = document.getElementById('eco').options[document.getElementById('eco').selectedIndex].text;
             let birads = document.getElementById('birads').options[document.getElementById('birads').selectedIndex].text;
 
-            let fraseLaudo = `${paciente}, ultrassonografia de mamas. Nódulo na mama ${mama}, às ${relogio}, a ${dist} do mamilo. Dimensões: ${dim}. Forma ${forma}, margem ${margem}, ecotextura ${eco}. Conclusão: ${birads}. Por favor, formate isso como um laudo formal.`;
+            let fraseLaudo = `${paciente}, ultrassonografia de mamas. Nódulo na mama ${mama}, às ${relogio}, a ${dist} cm do mamilo. Dimensões: ${dim} cm. Forma ${forma}, margem ${margem}, ecotextura ${eco}. Conclusão: ${birads}. Por favor, formate isso como um laudo formal.`;
 
             navigator.clipboard.writeText(fraseLaudo).then(() => {
                 let btn = document.getElementById('btn-acao');
