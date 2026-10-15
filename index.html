@@ -134,24 +134,24 @@
             let eco = document.getElementById('eco').value;
             let biradsSelect = document.getElementById('birads');
 
-            let isSuspeito = (forma === 'irregular' || margem !== 'circunscrita' || eco === 'complexo');
-
-            if (isSuspeito) {
-                if (margem === 'espiculada') {
-                    biradsSelect.value = '5';
-                } else if (forma === 'irregular' && margem !== 'circunscrita') {
-                    biradsSelect.value = '4B'; 
-                } else {
-                    biradsSelect.value = '4A';
-                }
+            // Lógica ACR BI-RADS
+            if (margem === 'espiculada' || (forma === 'irregular' && margem === 'microlobulada')) {
+                biradsSelect.value = '5';
+            } else if (forma === 'irregular' && (margem === 'angular' || margem === 'indistinta' || eco === 'complexo')) {
+                biradsSelect.value = '4C';
+            } else if (forma === 'irregular' || margem === 'microlobulada' || margem === 'angular' || margem === 'indistinta' || eco === 'complexo') {
+                biradsSelect.value = '4B';
+            } else if (margem !== 'circunscrita') {
+                biradsSelect.value = '4A';
+            } else if (eco === 'anecoico') {
+                biradsSelect.value = '2';
             } else {
-                if (eco === 'anecoico' || eco === 'hiperecoico') {
-                    biradsSelect.value = '2'; 
-                } else if (eco === 'hipoecoico' || eco === 'isoecoico') {
-                    biradsSelect.value = '3'; 
-                }
+                biradsSelect.value = '3';
             }
         }
+
+        // Executa uma vez no início para garantir o estado inicial correto
+        calcularBirads();
 
         function copiarEFechar() {
             let paciente = document.getElementById('paciente').value || "Paciente sem nome";
@@ -164,16 +164,14 @@
             let eco = document.getElementById('eco').options[document.getElementById('eco').selectedIndex].text;
             let birads = document.getElementById('birads').options[document.getElementById('birads').selectedIndex].text;
 
-            let fraseLaudo = `${paciente}, ultrassonografia de mamas. Nódulo na mama ${mama}, às ${relogio}, a ${dist} do mamilo. Dimensões: ${dim}. Forma ${forma}, margem ${margem, ecotextura ${eco}. Conclusão: ${birads}. Por favor, formate isso como um laudo formal.`;
+            let fraseLaudo = `${paciente}, ultrassonografia de mamas. Nódulo na mama ${mama}, às ${relogio}, a ${dist} do mamilo. Dimensões: ${dim}. Forma ${forma}, margem ${margem}, ecotextura ${eco}. Conclusão: ${birads}. Por favor, formate isso como um laudo formal.`;
 
-            // Copia para a área de transferência
             navigator.clipboard.writeText(fraseLaudo).then(() => {
                 let btn = document.getElementById('btn-acao');
                 btn.innerText = "Copiado! Cole no chat.";
                 btn.style.backgroundColor = "#5cb85c";
                 
-                // Fecha automaticamente após 1.5 segundos
-                setTimeout(() => { tg.close(); }, 1500);
+                setTimeout(() => { tg.close(); }, 1200);
             }).catch(err => {
                 alert("Erro ao copiar. Tente selecionar o texto manualmente.");
             });
