@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-PT">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -10,7 +10,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--tg-theme-bg-color, #ffffff);
             color: var(--tg-theme-text-color, #000000);
-            padding: 16px; margin: 0; padding-bottom: 80px;
+            padding: 16px; margin: 0; padding-bottom: 140px;
         }
         h2 { margin-top: 0; font-size: 20px; color: var(--tg-theme-text-color, #000000); }
         .form-group { margin-bottom: 16px; }
@@ -19,14 +19,46 @@
             width: 100%; box-sizing: border-box; padding: 12px;
             font-size: 16px; border-radius: 8px;
             border: 1px solid var(--tg-theme-hint-color, #cccccc);
-            background-color: var(--tg-theme-secondary-bg-color, #f4f4f5);
+            background-color: var(--tg-theme-secondary-bg-color, #ffffff);
             color: var(--tg-theme-text-color, #000000);
             appearance: none;
         }
         .row { display: flex; gap: 10px; }
         .row > div { flex: 1; }
         
-        button {
+        /* Estilo do Cartão do Nódulo */
+        .nodulo-card {
+            background-color: var(--tg-theme-secondary-bg-color, #f4f4f5);
+            border: 1px solid var(--tg-theme-hint-color, #cccccc);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            position: relative;
+        }
+        .nodulo-card h3 {
+            margin-top: 0; margin-bottom: 16px;
+            color: var(--tg-theme-button-color, #3390ec);
+            font-size: 18px;
+            border-bottom: 2px solid var(--tg-theme-hint-color, #cccccc);
+            padding-bottom: 8px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .btn-remover {
+            color: #d9534f; font-size: 14px; cursor: pointer; background: none; border: none; padding: 0; font-weight: bold;
+        }
+        
+        /* Botão de Adicionar Nódulo */
+        .btn-add {
+            width: 100%; padding: 14px;
+            background-color: transparent;
+            color: var(--tg-theme-button-color, #3390ec);
+            border: 2px dashed var(--tg-theme-button-color, #3390ec);
+            border-radius: 12px;
+            font-size: 16px; font-weight: bold;
+            cursor: pointer; margin-bottom: 20px;
+        }
+        
+        .btn-bottom {
             width: calc(100% - 32px); padding: 16px;
             background-color: var(--tg-theme-button-color, #3390ec);
             color: var(--tg-theme-button-text-color, #ffffff);
@@ -34,105 +66,127 @@
             font-size: 16px; font-weight: bold;
             position: fixed; bottom: 16px; left: 16px;
             cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 1000;
         }
     </style>
 </head>
 <body>
 
-    <h2>🎀 Descritor BI-RADS</h2>
+    <h2>🎀 Laudo de Mamas (BI-RADS)</h2>
 
     <div class="form-group">
         <label>Nome da Paciente</label>
         <input type="text" id="paciente" placeholder="Ex: Maria da Silva">
     </div>
 
-    <div class="row">
-        <div class="form-group">
-            <label>Mama</label>
-            <select id="mama">
-                <option value="direita">Direita</option>
-                <option value="esquerda">Esquerda</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>Localização (Horas)</label>
-            <select id="relogio">
-                <option value="12h">12h</option><option value="1h">1h</option>
-                <option value="2h">2h</option><option value="3h">3h</option>
-                <option value="4h">4h</option><option value="5h">5h</option>
-                <option value="6h">6h</option><option value="7h">7h</option>
-                <option value="8h">8h</option><option value="9h">9h</option>
-                <option value="10h">10h</option><option value="11h">11h</option>
-                <option value="Axilar">Axilar</option><option value="Retroareolar">Retroareolar</option>
-            </select>
-        </div>
-    </div>
+    <!-- O Javascript injeta os nódulos dentro desta div -->
+    <div id="lista-nodulos"></div>
 
-    <div class="row">
-        <div class="form-group">
-            <label>Distância do Mamilo (cm)</label>
-            <input type="text" id="distancia" placeholder="Ex: 2">
-        </div>
-        <div class="form-group">
-            <label>Dimensões (cm)</label>
-            <input type="text" id="dimensoes" placeholder="Ex: 1.5 x 1.0">
-        </div>
-    </div>
+    <button class="btn-add" onclick="adicionarNodulo()">+ Adicionar Nódulo</button>
 
-    <div class="form-group">
-        <label>Forma</label>
-        <select id="forma" onchange="calcularBirads()">
-            <option value="oval">Oval</option>
-            <option value="redonda">Redonda</option>
-            <option value="irregular">Irregular</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label>Margem</label>
-        <select id="margem" onchange="calcularBirads()">
-            <option value="circunscrita">Circunscrita</option>
-            <option value="indistinta">Indistinta</option>
-            <option value="angular">Angular</option>
-            <option value="microlobulada">Microlobulada</option>
-            <option value="espiculada">Espiculada</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label>Ecogenicidade</label>
-        <select id="eco" onchange="calcularBirads()">
-            <option value="anecoico">Anecoico (Cisto simples)</option>
-            <option value="hipoecoico" selected>Hipoecoico</option>
-            <option value="isoecoico">Isoecoico</option>
-            <option value="hiperecoico">Hiperecoico</option>
-            <option value="complexo">Sólido-Cístico (Complexo)</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label>Classificação BI-RADS Automática</label>
-        <select id="birads">
-            <option value="2">BI-RADS 2 (Achado Benigno)</option>
-            <option value="3" selected>BI-RADS 3 (Provavelmente Benigno)</option>
-            <option value="4A">BI-RADS 4A (Baixa suspeita)</option>
-            <option value="4B">BI-RADS 4B (Média suspeita)</option>
-            <option value="4C">BI-RADS 4C (Alta suspeita)</option>
-            <option value="5">BI-RADS 5 (Altamente sugestivo de malignidade)</option>
-        </select>
-    </div>
-
-    <button onclick="copiarEFechar()" id="btn-acao">Copiar Laudo e Fechar</button>
+    <button class="btn-bottom" onclick="copiarEFechar()" id="btn-acao">Copiar Todos e Fechar</button>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        function calcularBirads() {
-            let forma = document.getElementById('forma').value;
-            let margem = document.getElementById('margem').value;
-            let eco = document.getElementById('eco').value;
-            let biradsSelect = document.getElementById('birads');
+        let noduloCount = 0;
+
+        function adicionarNodulo() {
+            noduloCount++;
+            const container = document.getElementById('lista-nodulos');
+            const card = document.createElement('div');
+            card.className = 'nodulo-card';
+            
+            // O botão remover só aparece a partir do 2º nódulo
+            let btnRemoverHTML = noduloCount > 1 ? '<button class="btn-remover" onclick="this.closest(\'.nodulo-card\').remove()">✕ Remover</button>' : '';
+
+            card.innerHTML = `
+                <h3>Nódulo ${noduloCount} ${btnRemoverHTML}</h3>
+                <div class="row">
+                    <div class="form-group">
+                        <label>Mama</label>
+                        <select class="mama">
+                            <option value="direita">Direita</option>
+                            <option value="esquerda">Esquerda</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Localização (Horas)</label>
+                        <select class="relogio">
+                            <option value="12h">12h</option><option value="1h">1h</option>
+                            <option value="2h">2h</option><option value="3h">3h</option>
+                            <option value="4h">4h</option><option value="5h">5h</option>
+                            <option value="6h">6h</option><option value="7h">7h</option>
+                            <option value="8h">8h</option><option value="9h">9h</option>
+                            <option value="10h">10h</option><option value="11h">11h</option>
+                            <option value="Axilar">Axilar</option><option value="Retroareolar">Retroareolar</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <label>Distância do Mamilo</label>
+                        <input type="text" class="distancia" placeholder="Ex: 2 cm">
+                    </div>
+                    <div class="form-group">
+                        <label>Dimensões</label>
+                        <input type="text" class="dimensoes" placeholder="Ex: 1.5 x 1.0 cm">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Forma</label>
+                    <select class="forma" onchange="calcularBirads(this)">
+                        <option value="oval">Oval</option>
+                        <option value="redonda">Redonda</option>
+                        <option value="irregular">Irregular</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Margem</label>
+                    <select class="margem" onchange="calcularBirads(this)">
+                        <option value="circunscrita">Circunscrita</option>
+                        <option value="indistinta">Indistinta</option>
+                        <option value="angular">Angular</option>
+                        <option value="microlobulada">Microlobulada</option>
+                        <option value="espiculada">Espiculada</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Ecogenicidade</label>
+                    <select class="eco" onchange="calcularBirads(this)">
+                        <option value="anecoico">Anecoico (Cisto simples)</option>
+                        <option value="hipoecoico" selected>Hipoecoico</option>
+                        <option value="isoecoico">Isoecoico</option>
+                        <option value="hiperecoico">Hiperecoico</option>
+                        <option value="complexo">Sólido-Cístico (Complexo)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>BI-RADS do Nódulo</label>
+                    <select class="birads">
+                        <option value="2">BI-RADS 2 (Achado Benigno)</option>
+                        <option value="3" selected>BI-RADS 3 (Provavelmente Benigno)</option>
+                        <option value="4A">BI-RADS 4A (Baixa suspeita)</option>
+                        <option value="4B">BI-RADS 4B (Média suspeita)</option>
+                        <option value="4C">BI-RADS 4C (Alta suspeita)</option>
+                        <option value="5">BI-RADS 5 (Altamente sugestivo de malignidade)</option>
+                    </select>
+                </div>
+            `;
+            container.appendChild(card);
+            
+            // Força o cálculo do BI-RADS para o novo nódulo inserido
+            calcularBirads(card.querySelector('.forma'));
+        }
+
+        // Calcula o BI-RADS isoladamente apenas para o nódulo que foi alterado
+        function calcularBirads(elementoSelect) {
+            let card = elementoSelect.closest('.nodulo-card');
+            let forma = card.querySelector('.forma').value;
+            let margem = card.querySelector('.margem').value;
+            let eco = card.querySelector('.eco').value;
+            let biradsSelect = card.querySelector('.birads');
 
             if (margem === 'espiculada' || (forma === 'irregular' && margem === 'microlobulada')) {
                 biradsSelect.value = '5';
@@ -156,30 +210,40 @@
             }
         }
 
-        // Força a validação inicial
-        calcularBirads();
+        // Adiciona automaticamente o primeiro nódulo ao abrir o Mini App
+        adicionarNodulo();
 
         function copiarEFechar() {
             let paciente = document.getElementById('paciente').value || "Paciente sem nome";
-            let mama = document.getElementById('mama').value;
-            let relogio = document.getElementById('relogio').value;
-            let dist = document.getElementById('distancia').value || "não informada";
-            let dim = document.getElementById('dimensoes').value || "não informadas";
-            let forma = document.getElementById('forma').value;
-            let margem = document.getElementById('margem').value;
-            let eco = document.getElementById('eco').options[document.getElementById('eco').selectedIndex].text;
-            let birads = document.getElementById('birads').options[document.getElementById('birads').selectedIndex].text;
+            
+            // Inicia a frase base
+            let fraseLaudo = `${paciente}, ultrassonografia de mamas.\n`;
 
-            let fraseLaudo = `${paciente}, ultrassonografia de mamas. Nódulo na mama ${mama}, às ${relogio}, a ${dist} cm do mamilo. Dimensões: ${dim} cm. Forma ${forma}, margem ${margem}, ecotextura ${eco}. Conclusão: ${birads}. Por favor, formate isso como um laudo formal.`;
+            // Percorre todos os cartões de nódulos visíveis e extrai os dados
+            let cards = document.querySelectorAll('.nodulo-card');
+            cards.forEach((card, index) => {
+                let mama = card.querySelector('.mama').value;
+                let relogio = card.querySelector('.relogio').value;
+                let dist = card.querySelector('.distancia').value || "medida não informada";
+                let dim = card.querySelector('.dimensoes').value || "dimensões não informadas";
+                let forma = card.querySelector('.forma').value;
+                let margem = card.querySelector('.margem').value;
+                let eco = card.querySelector('.eco').options[card.querySelector('.eco').selectedIndex].text;
+                let birads = card.querySelector('.birads').options[card.querySelector('.birads').selectedIndex].text;
 
-            navigator.clipboard.writeText(fraseLaudo).then(() => {
+                // Adiciona a descrição de cada nódulo ao texto final
+                fraseLaudo += `\nNódulo ${index + 1}: mama ${mama}, às ${relogio}, a ${dist} do mamilo. Dimensões: ${dim}. Forma ${forma}, margem ${margem}, ecotextura ${eco}. Conclusão do nódulo: ${birads}.`;
+            });
+
+            // Copia o resultado formatado
+            navigator.clipboard.writeText(fraseLaudo.trim()).then(() => {
                 let btn = document.getElementById('btn-acao');
                 btn.innerText = "Copiado! Cole no chat.";
                 btn.style.backgroundColor = "#5cb85c";
                 
                 setTimeout(() => { tg.close(); }, 1200);
             }).catch(err => {
-                alert("Erro ao copiar. Tente selecionar o texto manualmente.");
+                alert("Erro ao copiar.");
             });
         }
     </script>
