@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -8,57 +8,48 @@
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--tg-theme-bg-color, #ffffff);
+            background-color: var(--tg-theme-bg-color, #f4f4f5);
             color: var(--tg-theme-text-color, #000000);
-            padding: 16px; margin: 0; padding-bottom: 140px;
+            padding: 16px; margin: 0; padding-bottom: 90px;
         }
-        h2 { margin-top: 0; font-size: 20px; color: var(--tg-theme-text-color, #000000); }
-        .form-group { margin-bottom: 16px; }
-        label { display: block; font-size: 14px; font-weight: bold; margin-bottom: 6px; color: var(--tg-theme-hint-color, #888888); }
+        h2 { margin-top: 0; font-size: 20px; text-align: center; color: var(--tg-theme-text-color, #000000); }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 4px; color: var(--tg-theme-hint-color, #666666); }
         select, input {
-            width: 100%; box-sizing: border-box; padding: 12px;
-            font-size: 16px; border-radius: 8px;
-            border: 1px solid var(--tg-theme-hint-color, #cccccc);
-            background-color: var(--tg-theme-secondary-bg-color, #ffffff);
+            width: 100%; box-sizing: border-box; padding: 10px;
+            font-size: 15px; border-radius: 6px;
+            border: 1px solid #cccccc;
+            background-color: var(--tg-theme-bg-color, #ffffff);
             color: var(--tg-theme-text-color, #000000);
             appearance: none;
         }
-        .row { display: flex; gap: 10px; }
+        .row { display: flex; gap: 8px; }
         .row > div { flex: 1; }
         
-        /* Estilo do Cartão do Nódulo */
         .nodulo-card {
-            background-color: var(--tg-theme-secondary-bg-color, #f4f4f5);
-            border: 1px solid var(--tg-theme-hint-color, #cccccc);
-            border-radius: 12px;
-            padding: 16px;
+            background: var(--tg-theme-bg-color, #ffffff);
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
             margin-bottom: 16px;
-            position: relative;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
-        .nodulo-card h3 {
-            margin-top: 0; margin-bottom: 16px;
-            color: var(--tg-theme-button-color, #3390ec);
-            font-size: 18px;
-            border-bottom: 2px solid var(--tg-theme-hint-color, #cccccc);
-            padding-bottom: 8px;
-            display: flex; justify-content: space-between; align-items: center;
+        .nodulo-header {
+            font-size: 16px; font-weight: bold; margin-top: 0; margin-bottom: 12px;
+            border-bottom: 1px solid #eee; padding-bottom: 8px;
         }
-        .btn-remover {
-            color: #d9534f; font-size: 14px; cursor: pointer; background: none; border: none; padding: 0; font-weight: bold;
-        }
-        
-        /* Botão de Adicionar Nódulo */
+
         .btn-add {
-            width: 100%; padding: 14px;
+            width: 100%; padding: 12px;
             background-color: transparent;
             color: var(--tg-theme-button-color, #3390ec);
             border: 2px dashed var(--tg-theme-button-color, #3390ec);
-            border-radius: 12px;
-            font-size: 16px; font-weight: bold;
+            border-radius: 8px;
+            font-size: 15px; font-weight: bold;
             cursor: pointer; margin-bottom: 20px;
         }
-        
-        .btn-bottom {
+
+        .btn-main {
             width: calc(100% - 32px); padding: 16px;
             background-color: var(--tg-theme-button-color, #3390ec);
             color: var(--tg-theme-button-text-color, #ffffff);
@@ -66,43 +57,42 @@
             font-size: 16px; font-weight: bold;
             position: fixed; bottom: 16px; left: 16px;
             cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            z-index: 1000;
+        }
+        .birads-result {
+            font-weight: bold; background-color: #f0f0f0; border: none; pointer-events: none;
         }
     </style>
 </head>
 <body>
 
-    <h2>🎀 Laudo de Mamas (BI-RADS)</h2>
+    <h2>🎀 Laudo Estruturado de Mamas</h2>
 
-    <div class="form-group">
+    <div class="form-group" style="margin-bottom: 20px;">
         <label>Nome da Paciente</label>
         <input type="text" id="paciente" placeholder="Ex: Maria da Silva">
     </div>
 
-    <!-- O Javascript injeta os nódulos dentro desta div -->
-    <div id="lista-nodulos"></div>
+    <div id="nodulos-container">
+        <!-- Os cartões de nódulos serão inseridos aqui pelo JavaScript -->
+    </div>
 
     <button class="btn-add" onclick="adicionarNodulo()">+ Adicionar Nódulo</button>
 
-    <button class="btn-bottom" onclick="copiarEFechar()" id="btn-acao">Copiar Todos e Fechar</button>
+    <button class="btn-main" onclick="copiarEFechar()" id="btn-acao">Copiar Tudo e Fechar</button>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
-
         let noduloCount = 0;
 
         function adicionarNodulo() {
             noduloCount++;
-            const container = document.getElementById('lista-nodulos');
-            const card = document.createElement('div');
-            card.className = 'nodulo-card';
+            const container = document.getElementById('nodulos-container');
             
-            // O botão remover só aparece a partir do 2º nódulo
-            let btnRemoverHTML = noduloCount > 1 ? '<button class="btn-remover" onclick="this.closest(\'.nodulo-card\').remove()">✕ Remover</button>' : '';
-
-            card.innerHTML = `
-                <h3>Nódulo ${noduloCount} ${btnRemoverHTML}</h3>
+            const cardHTML = `
+            <div class="nodulo-card" id="nodulo-${noduloCount}">
+                <div class="nodulo-header">Nódulo ${noduloCount}</div>
+                
                 <div class="row">
                     <div class="form-group">
                         <label>Mama</label>
@@ -112,28 +102,28 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Localização (Horas)</label>
+                        <label>Horas</label>
                         <select class="relogio">
-                            <option value="12h">12h</option><option value="1h">1h</option>
-                            <option value="2h">2h</option><option value="3h">3h</option>
-                            <option value="4h">4h</option><option value="5h">5h</option>
-                            <option value="6h">6h</option><option value="7h">7h</option>
-                            <option value="8h">8h</option><option value="9h">9h</option>
-                            <option value="10h">10h</option><option value="11h">11h</option>
+                            <option value="12h">12h</option><option value="1h">1h</option><option value="2h">2h</option>
+                            <option value="3h">3h</option><option value="4h">4h</option><option value="5h">5h</option>
+                            <option value="6h">6h</option><option value="7h">7h</option><option value="8h">8h</option>
+                            <option value="9h">9h</option><option value="10h">10h</option><option value="11h">11h</option>
                             <option value="Axilar">Axilar</option><option value="Retroareolar">Retroareolar</option>
                         </select>
                     </div>
                 </div>
+
                 <div class="row">
                     <div class="form-group">
-                        <label>Distância do Mamilo</label>
-                        <input type="text" class="distancia" placeholder="Ex: 2 cm">
+                        <label>Distância (cm)</label>
+                        <input type="text" class="distancia" placeholder="Ex: 2">
                     </div>
                     <div class="form-group">
-                        <label>Dimensões</label>
-                        <input type="text" class="dimensoes" placeholder="Ex: 1.5 x 1.0 cm">
+                        <label>Dimensões (cm)</label>
+                        <input type="text" class="dimensoes" placeholder="Ex: 1.5 x 1.0">
                     </div>
                 </div>
+
                 <div class="form-group">
                     <label>Forma</label>
                     <select class="forma" onchange="calcularBirads(this)">
@@ -142,6 +132,7 @@
                         <option value="irregular">Irregular</option>
                     </select>
                 </div>
+
                 <div class="form-group">
                     <label>Margem</label>
                     <select class="margem" onchange="calcularBirads(this)">
@@ -152,6 +143,7 @@
                         <option value="espiculada">Espiculada</option>
                     </select>
                 </div>
+
                 <div class="form-group">
                     <label>Ecogenicidade</label>
                     <select class="eco" onchange="calcularBirads(this)">
@@ -162,90 +154,92 @@
                         <option value="complexo">Sólido-Cístico (Complexo)</option>
                     </select>
                 </div>
+
                 <div class="form-group">
-                    <label>BI-RADS do Nódulo</label>
-                    <select class="birads">
-                        <option value="2">BI-RADS 2 (Achado Benigno)</option>
-                        <option value="3" selected>BI-RADS 3 (Provavelmente Benigno)</option>
-                        <option value="4A">BI-RADS 4A (Baixa suspeita)</option>
-                        <option value="4B">BI-RADS 4B (Média suspeita)</option>
-                        <option value="4C">BI-RADS 4C (Alta suspeita)</option>
-                        <option value="5">BI-RADS 5 (Altamente sugestivo de malignidade)</option>
-                    </select>
+                    <label>Classificação BI-RADS Automática</label>
+                    <input type="text" class="birads-result" value="BI-RADS 3 (Provavelmente Benigno)" readonly>
                 </div>
-            `;
-            container.appendChild(card);
+            </div>`;
             
-            // Força o cálculo do BI-RADS para o novo nódulo inserido
-            calcularBirads(card.querySelector('.forma'));
+            container.insertAdjacentHTML('beforeend', cardHTML);
+            
+            // Força o cálculo do BI-RADS para o novo nódulo gerado
+            const novoCard = document.getElementById(`nodulo-${noduloCount}`);
+            calcularBirads(novoCard.querySelector('.forma'));
         }
 
-        // Calcula o BI-RADS isoladamente apenas para o nódulo que foi alterado
-        function calcularBirads(elementoSelect) {
-            let card = elementoSelect.closest('.nodulo-card');
-            let forma = card.querySelector('.forma').value;
-            let margem = card.querySelector('.margem').value;
-            let eco = card.querySelector('.eco').value;
-            let biradsSelect = card.querySelector('.birads');
+        // Função que calcula o BI-RADS independentemente para o cartão onde ocorreu a mudança
+        function calcularBirads(elemento) {
+            const card = elemento.closest('.nodulo-card');
+            const forma = card.querySelector('.forma').value;
+            const margem = card.querySelector('.margem').value;
+            const eco = card.querySelector('.eco').value;
+            const campoBirads = card.querySelector('.birads-result');
 
             if (margem === 'espiculada' || (forma === 'irregular' && margem === 'microlobulada')) {
-                biradsSelect.value = '5';
-                biradsSelect.style.backgroundColor = '#f8d7da';
-                biradsSelect.style.color = '#721c24';
+                campoBirads.value = 'BI-RADS 5 (Altamente sugestivo de malignidade)';
+                campoBirads.style.backgroundColor = '#f8d7da'; campoBirads.style.color = '#721c24';
             } else if (forma === 'irregular' && (margem === 'angular' || margem === 'indistinta' || eco === 'complexo')) {
-                biradsSelect.value = '4C';
-                biradsSelect.style.backgroundColor = ''; biradsSelect.style.color = '';
+                campoBirads.value = 'BI-RADS 4C (Alta suspeita)';
+                campoBirads.style.backgroundColor = '#fff3cd'; campoBirads.style.color = '#856404';
             } else if (forma === 'irregular' || margem === 'microlobulada' || margem === 'angular' || margem === 'indistinta' || eco === 'complexo') {
-                biradsSelect.value = '4B';
-                biradsSelect.style.backgroundColor = ''; biradsSelect.style.color = '';
+                campoBirads.value = 'BI-RADS 4B (Média suspeita)';
+                campoBirads.style.backgroundColor = '#fff3cd'; campoBirads.style.color = '#856404';
             } else if (margem !== 'circunscrita') {
-                biradsSelect.value = '4A';
-                biradsSelect.style.backgroundColor = ''; biradsSelect.style.color = '';
+                campoBirads.value = 'BI-RADS 4A (Baixa suspeita)';
+                campoBirads.style.backgroundColor = '#e2e3e5'; campoBirads.style.color = '#383d41';
             } else if (eco === 'anecoico') {
-                biradsSelect.value = '2';
-                biradsSelect.style.backgroundColor = ''; biradsSelect.style.color = '';
+                campoBirads.value = 'BI-RADS 2 (Achado Benigno)';
+                campoBirads.style.backgroundColor = '#d4edda'; campoBirads.style.color = '#155724';
             } else {
-                biradsSelect.value = '3';
-                biradsSelect.style.backgroundColor = ''; biradsSelect.style.color = '';
+                campoBirads.value = 'BI-RADS 3 (Provavelmente Benigno)';
+                campoBirads.style.backgroundColor = '#d4edda'; campoBirads.style.color = '#155724';
             }
         }
 
-        // Adiciona automaticamente o primeiro nódulo ao abrir o Mini App
-        adicionarNodulo();
-
         function copiarEFechar() {
-            let paciente = document.getElementById('paciente').value || "Paciente sem nome";
+            let paciente = document.getElementById('paciente').value || "Paciente";
+            let textoFinal = `${paciente}, ultrassonografia de mamas.\n\n`;
+
+            const cards = document.querySelectorAll('.nodulo-card');
             
-            // Inicia a frase base
-            let fraseLaudo = `${paciente}, ultrassonografia de mamas.\n`;
+            if (cards.length === 0) {
+                alert("Adicione pelo menos um nódulo.");
+                return;
+            }
 
-            // Percorre todos os cartões de nódulos visíveis e extrai os dados
-            let cards = document.querySelectorAll('.nodulo-card');
+            // Percorre todos os cartões e junta os dados
             cards.forEach((card, index) => {
-                let mama = card.querySelector('.mama').value;
+                let mama = card.querySelector('.mama').options[card.querySelector('.mama').selectedIndex].text;
                 let relogio = card.querySelector('.relogio').value;
-                let dist = card.querySelector('.distancia').value || "medida não informada";
-                let dim = card.querySelector('.dimensoes').value || "dimensões não informadas";
-                let forma = card.querySelector('.forma').value;
-                let margem = card.querySelector('.margem').value;
-                let eco = card.querySelector('.eco').options[card.querySelector('.eco').selectedIndex].text;
-                let birads = card.querySelector('.birads').options[card.querySelector('.birads').selectedIndex].text;
+                let dist = card.querySelector('.distancia').value || "não informada";
+                let dim = card.querySelector('.dimensoes').value || "não informadas";
+                let forma = card.querySelector('.forma').options[card.querySelector('.forma').selectedIndex].text.toLowerCase();
+                let margem = card.querySelector('.margem').options[card.querySelector('.margem').selectedIndex].text.toLowerCase();
+                let eco = card.querySelector('.eco').options[card.querySelector('.eco').selectedIndex].text.toLowerCase();
+                // Apanha o BI-RADS limpo, ex: "BI-RADS 5" (divide a string antes do parêntesis)
+                let biradsCompleto = card.querySelector('.birads-result').value;
+                let birads = biradsCompleto.split(" (")[0]; 
 
-                // Adiciona a descrição de cada nódulo ao texto final
-                fraseLaudo += `\nNódulo ${index + 1}: mama ${mama}, às ${relogio}, a ${dist} do mamilo. Dimensões: ${dim}. Forma ${forma}, margem ${margem}, ecotextura ${eco}. Conclusão do nódulo: ${birads}.`;
+                textoFinal += `Nódulo ${index + 1}: mama ${mama.toLowerCase()}, às ${relogio}, a ${dist} cm do mamilo. Dimensões: ${dim} cm. Forma ${forma}, margem ${margem}, ecotextura ${eco}. Conclusão do nódulo: ${birads}.\n`;
             });
 
-            // Copia o resultado formatado
-            navigator.clipboard.writeText(fraseLaudo.trim()).then(() => {
+            // Copia para a área de transferência
+            navigator.clipboard.writeText(textoFinal.trim()).then(() => {
                 let btn = document.getElementById('btn-acao');
                 btn.innerText = "Copiado! Cole no chat.";
                 btn.style.backgroundColor = "#5cb85c";
                 
                 setTimeout(() => { tg.close(); }, 1200);
             }).catch(err => {
-                alert("Erro ao copiar.");
+                alert("Erro ao copiar. O seu dispositivo pode estar a bloquear.");
             });
         }
+
+        // Adiciona automaticamente o Nódulo 1 assim que o painel abre
+        window.onload = function() {
+            adicionarNodulo();
+        };
     </script>
 </body>
 </html>
